@@ -30,6 +30,10 @@ const testSequelize = async () => {
     }
 }
 
+//controllers
+const bandsControllers = require('./controllers/bands_controller')
+app.use('/bands', bandsControllers)
+
 // LISTEN
 app.listen(process.env.PORT, () => {
     testSequelize()
