@@ -13,7 +13,12 @@ stages.get('/', async (req, res) =>{
 stages.get('/:id', async (req, res) => {
   try {
     const specificStage = await Stage.findOne({
-      where: { id: req.params.id }
+      where: { id: req.params.id },
+      include: {
+        model: Event,
+        as: 'events',
+      },
+      order: [{ model: Event, as: 'events' }]
     })
     res.json(specificBand)
   } catch (e) {

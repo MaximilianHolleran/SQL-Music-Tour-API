@@ -13,7 +13,25 @@ bands.get('/', async (req, res) =>{
 bands.get('/:id', async (req, res) => {
   try {
     const specificBand = await Band.findOne({
-      where: { id: req.params.id }
+      where: { id: req.params.id },
+      include: [
+        {
+          model: MeetGreet,
+          as: 'meetGreets',
+          include: [{
+            model: Event,
+            as:'event'
+          }]
+        },
+        {
+          model: MusicSet,
+          as: 'sets',
+          include: [{
+            model: Event,
+            as: 'event'
+          }]
+        }
+      ]
     })
     res.json(specificBand)
   } catch (e) {

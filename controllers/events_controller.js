@@ -13,7 +13,25 @@ events.get('/', async (req, res) =>{
 events.get('/:id', async (req, res) => {
   try {
     const specificEvent = await Event.findOne({
-      where: { id: req.params.id }
+      where: { id: req.params.id },
+      include: [
+        {
+          model: MeetGreet,
+          as: 'meetGreets',
+          include: [{
+            model: Band,
+            as:'band'
+          }]
+        },
+        {
+          model: MusicSet,
+          as: 'sets',
+          include: [
+            {model: Event, as: 'band'},
+             {model: stage, as: 'stage'} 
+          ]
+        }
+      ]
     })
     res.json(specificEvent)
   } catch (e) {
