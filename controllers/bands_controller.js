@@ -1,78 +1,81 @@
+// DEPENDENCIES
 const bands = require('express').Router()
-const { Band } = require('../models')
+const db = require('../models')
+const { Band } = db 
+const { Op } = require('sequelize')
 
-bands.get('/', async (req, res) =>{
-  try {
-    const allBands = await Band.findAll()
-    res.json(allBands)
-  } catch (e) {
-    res.send(e.message)
-  }
-})
-
-bands.get('/:id', async (req, res) => {
-  try {
-    const specificBand = await Band.findOne({
-      where: { id: req.params.id },
-      include: [
-        {
-          model: MeetGreet,
-          as: 'meetGreets',
-          include: [{
-            model: Event,
-            as:'event'
-          }]
-        },
-        {
-          model: MusicSet,
-          as: 'sets',
-          include: [{
-            model: Event,
-            as: 'event'
-          }]
-        }
-      ]
-    })
-    res.json(specificBand)
-  } catch (e) {
-    res.send(e.message)
-  }
-})
-
-bands.post('/', async (req, res) => {
-  try {
-    const newBand = await Band.create(req.body)
-    res.json(newBand)
-  } catch (e) {
-    res.send(e.message)
-  }
-})
-
-bands.put('/:id', async (req, res) => {
-  try {
-    const { name, genre } = req.body
-    if (!name && !genre) {
-      throw Error('No fields to update')
+// FIND ALL BANDS
+bands.get('/', async (req, res) => {
+    try {
+        const foundBands = await Band.findAll({
+            order: [['name', 'ASC']],
+            where: {
+                name: { [Op.substring]: `%${req.query.name ? req.query.name : ''}` }
+            }
+        })
+        res.status(200).json(foundBands)
+    } catch (error) {
+        res.status(500).json(error)
     }
-    const [ numUpdated ] = await Band.update(
-      { name, genre },
-      { where: { id: req.params.id } }
-    )
-    res.send(`Updated ${numUpdated} band(s).`)
-  } catch (e) {
-    res.send(e.message)
-  }
 })
 
+// FIND A SPECIFIC BAND
+bands.get('/:id', async (req, res) => {
+    try {
+        const foundBand = await Band.findOne({
+            where: { band_id: req.params.id }
+        })
+        res.status(200).json(foundBand)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
+// CREATE A BAND
+bands.post('/', async (req, res) => {
+    try {
+        const newBand = await Band.create(req.body)
+        res.status(200).json({
+            message: 'Successfully inserted a new band',
+            data: newBand
+        })
+    } catch(err) {
+        res.status(500).json(err)
+    }
+})
+
+// UPDATE A BAND
+bands.put('/:id', async (req, res) => {
+    try {
+        const updatedBands = await Band.update(req.body, {
+            where: {
+                band_id: req.params.id
+            }
+        })
+        res.status(200).json({
+            message: `Successfully updated ${updatedBands} band(s)`
+        })
+    } catch(err) {
+        res.status(500).json(err)
+    }
+})
+
+// DELETE A BAND
 bands.delete('/:id', async (req, res) => {
-  try {
-    const deleted = await Band.destroy({
-      where: { id: req.params.id }
-    })
-    res.send(`Deleted ${deleted} band(s).`)
-  } catch (e) {
-    res.send(e.message)
-  }
+    try {
+        const deletedBands = await Band.destroy({
+            where: {
+                band_id: req.params.id
+            }
+        })
+        res.status(200).json({
+            message: `Successfully deleted ${deletedBands} band(s)`
+        })
+    } catch(err) {
+        res.status(500).json(err)
+    }
 })
 
+
+// EXPORT
 module.exports = bands

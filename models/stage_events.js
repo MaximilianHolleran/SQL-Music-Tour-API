@@ -1,23 +1,47 @@
 'use strict';
 const {
-  Model
+  Model, Deferrable
 } = require('sequelize');
+
+const Stage = require('./stage')
+const Event = require('./event')
+
 module.exports = (sequelize, DataTypes) => {
-  class stage_events extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+  class Stage_event extends Model {
     static associate(models) {
-      // define association here
+
     }
   }
-  stage_events.init({
-    name: DataTypes.STRING
+  Stage_event.init({
+    stages_events_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    stage_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Stage,
+        key: "stage_id",
+        deferrable: Deferrable.INITIALLY_IMMEDIATE
+      }
+    },
+    event_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Event,
+        key: "event_id",
+        deferrable: Deferrable.INITIALLY_IMMEDIATE
+      }
+    }
   }, {
     sequelize,
-    modelName: 'stage_events',
+    modelName: 'Stage_event',
+    tableName: 'stage_events',
+    timestamps: false
   });
-  return stage_events;
+  return Stage_event;
 };

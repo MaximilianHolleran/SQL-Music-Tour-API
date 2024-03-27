@@ -3,22 +3,23 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Stages', {
-      id: {
+      stage_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
-        type: Sequelize.STRING
+      stage_name: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
-      createdAt: {
+      location_id: {
         allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'locations',
+          key: 'location_id'
+        }
       }
     });
   },
